@@ -25,6 +25,7 @@ public class fetchJSON extends AsyncTask<Void, Void, Void> {
     String itemParsed = "";
 
     @Override
+    //Method to parse JSON website
     protected Void doInBackground(Void... voids) {
         try {
             URL url = new URL("https://fetch-hiring.s3.amazonaws.com/hiring.json");
@@ -33,29 +34,39 @@ public class fetchJSON extends AsyncTask<Void, Void, Void> {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(input));
             String line = "";
 
+            //If there is still data to be parsed
             while(line != null){
                 line = bufferedReader.readLine();
                 data = data + line;
             }
 
             JSONArray dataArray = new JSONArray(data);
+
+            //This List will be used to sort
             List<JSONObject> sort = new ArrayList<JSONObject>();
 
+            //Populate the list with JSONObjects
             for(int i = 0; i < dataArray.length(); i++) {
                 sort.add(dataArray.getJSONObject(i));
             }
 
+            //Sort list
             Collections.sort(sort, new Comparator<JSONObject>() {
                 @Override
-                public int compare(JSONObject jsonObject, JSONObject t1) {
+                public int compare(JSONObject object1, JSONObject object2) {
                     try {
-                        int listID1 = Integer.parseInt(jsonObject.getString("listId"));
-                        int listID2 = Integer.parseInt(t1.getString("listId"));
-                        int id1 = Integer.parseInt(jsonObject.getString("id"));
-                        int id2 = Integer.parseInt(t1.getString("id"));
+                        //Variables for listId and id so that we can sort by both
+                        int listID1 = Integer.parseInt(object1.getString("listId"));
+                        int listID2 = Integer.parseInt(object2.getString("listId"));
+                        int id1 = Integer.parseInt(object1.getString("id"));
+                        int id2 = Integer.parseInt(object2.getString("id"));
+
+                        //If listID is different, then sort by listID
                         if(listID1 > listID2){
                             return 1;
                         }
+
+                        //If same listID is encountered, then sort by id which gives Item name
                         else if(listID1 == listID2){
                             if(id1 > id2){
                                 return 1;
@@ -79,8 +90,11 @@ public class fetchJSON extends AsyncTask<Void, Void, Void> {
                 }
             });
 
+            //Parse and store data
             for(int i = 0; i < sort.size(); i++){
                 JSONObject object = sort.get(i);
+
+                //Filter out empty or null names
                 if(object.getString("name").isEmpty() || object.getString("name") == "null") {
                     continue;
                 }
@@ -88,9 +102,12 @@ public class fetchJSON extends AsyncTask<Void, Void, Void> {
                     groupParsed = "Group: " + object.get("listId") + "\n";
                     itemParsed = "Name: " + object.get("name") + "\n";
 
+                    //If listID is the same as previous, then only send name of item for a more concise view
                     if(groupParsed.equals(previousGroupParsed)) {
                         parsedData = parsedData + itemParsed;
                     }
+
+                    //If listID is different, then print out group number so user knows which group we are looking at
                     else {
                         parsedData = parsedData + groupParsed + itemParsed;
                         previousGroupParsed = groupParsed;
@@ -108,6 +125,7 @@ public class fetchJSON extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
+    //Send data back so screen can be populated
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
         MainActivity.data.setText(this.parsedData);
