@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">FetchRewardsAssessment</string>
+    <string name="click_this_button_to_fetch_data">Click this button to fetch data:</string>
+    <string name="fetch">Fetch</string>
+    <string name="this_is_where_data_will_be_shown">This is where data will be shown</string>
+    <string name="please_click_the_fetch_button_to_retrieve_data">Please click the fetch button to retrieve data</string>
+</resources>
